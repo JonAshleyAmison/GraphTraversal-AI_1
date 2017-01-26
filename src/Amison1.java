@@ -1,4 +1,5 @@
 //test twice
+
 import java.util.StringTokenizer;// imported to utilize the string tokenizer class
 // Program:          Amison1.java
 // Course:           COSC470
@@ -36,7 +37,7 @@ public class Amison1 {
     public static KeyboardInputClass input = new KeyboardInputClass();// access to KeyBoardInputClass()
     public static TextFileClass textFile = new TextFileClass();// access to textFile()
     public static LList greatestPath = new LList();// list to use the greatest path
-    public static LList currentPath = new LList();// list to use the current path
+    public static LList allPaths = new LList();// list to use the current path
     public static int startNode;// start node
     public static int endNode;// end node
     public static double tresWeight;// treasure weight in computing fitness
@@ -60,11 +61,10 @@ public class Amison1 {
 // Globals:      input
     public static void main(String[] args) {
         while (true) {
-//            getAndParse();  THIS GETS THE FILE AND PARSES IT!
-
-            char bruteOrNo = input.getCharacter(true, 'B', "B,C", 1, "Brute Force(B) or Branch & Cut(C)? (Enter B/C, Default=B) ");// allows the user to pick between the 2 different algorithms
-            if (bruteOrNo == 'B') {// if user wants brute force
-                brute();// call to brute force algorithm
+            getAndParse(); // call to get and parse
+            char bruteOrNo = input.getCharacter(true, 'B', "D,B", 1, "Depth First(D) or Branch & Cut(B)? (Enter B/C, Default=D) ");// allows the user to pick between the 2 different algorithms
+            if (bruteOrNo == 'D') {// if user wants brute force
+                depthFirst();// call to depth first algorithm
             } else {// if user wants branch and cut
                 branchCut();// call to branch and cut
             }// end B and B&C if,else
@@ -75,15 +75,42 @@ public class Amison1 {
         }// end overall while
     }// end main
 //**************************************************************************************************************
-// Method:       brute
-// Description:  brute force algotithm
+// Method:       depthFirst
+// Description:  depth first search algotithm
 // Parameters:   none
 // Returns:      none
 // Calls:        
-// Globals: 
+// Globals:      treasureYeild[]
+//               matrix[][]
+//               tresWeight
+//               arcWeight
+//               allPaths
+//               greatestPath
+//               greatestScore
+//               
 
-    public static void brute() {
-
+    public static void depthFirst() {
+        // use a while loop to iterate through everything
+        double[] currentPath = new double[matrix.length + 3];
+        int j = 0;// treasure index, and to node
+        int i = 0;// from node
+        double totalYeild = 0;
+        double totalDistance = 0;
+        totalYeild += treasureYeild[j];
+        totalDistance += matrix[i][j];
+        double score = (totalYeild * tresWeight) - (totalDistance * arcWeight);//teasure*teasureWeight-distance*distanceWeight      
+        // need a for loop to add the visited nodes to the array, add 1 to each of them so that the algorithm
+        // printer will work properly
+        currentPath[currentPath.length - 1] = score;
+        currentPath[currentPath.length - 2] = totalYeild;
+        currentPath[currentPath.length - 3] = totalDistance;
+        allPaths.add(currentPath);
+        if (score > greatestScore) {
+            greatestPath.clear();
+            greatestPath.add(currentPath);
+        } else if (score == greatestScore) {
+            greatestPath.add(currentPath);
+        }
     }
 //**************************************************************************************************************
 // Method:       branchCut
@@ -95,6 +122,31 @@ public class Amison1 {
 
     public static void branchCut() {
 
+    }
+    //**************************************************************************************************************
+// Method:       printer
+// Description:  printing the total lists and such
+// Parameters:   none
+// Returns:      none
+// Calls:        
+// Globals: 
+
+    public static void printerBest() {
+        System.out.println("Score: " + greatestScore);
+        //ADD FOR MORE THAN ONE PATH, NEED FOR LOOP
+        double[] caster = (double[]) allPaths.getEntry(1);
+        System.out.println("Path: ");
+        for (int i = 0; i < caster.length - 3; i++) {
+            if (caster[i] != 0) {
+                if (i != caster.length - 4) {
+                    System.out.print(caster[i] + "-");
+                } else {
+                    System.out.print(caster[i]);
+                }
+            }
+            System.out.println("Total Treasure: " + caster[caster.length - 2]);
+            System.out.println("Total Distance: " + caster[caster.length - 3]);
+        }
     }
 //**************************************************************************************************************
 // Method:       getAndParse
