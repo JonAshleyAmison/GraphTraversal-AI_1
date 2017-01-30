@@ -37,7 +37,6 @@ public class Amison1 {
     public static KeyboardInputClass input = new KeyboardInputClass();// access to KeyBoardInputClass()
     public static TextFileClass textFile = new TextFileClass();// access to textFile()
     public static LList greatestPath = new LList();// list to use the greatest path
-    public static LList allPaths = new LList();// list to use the current path
     public static int startNode;// start node
     public static int endNode;// end node
     public static double tresWeight;// treasure weight in computing fitness
@@ -64,8 +63,10 @@ public class Amison1 {
             getAndParse(); // call to get and parse
             char bruteOrNo = input.getCharacter(true, 'B', "D,B", 1, "Depth First(D) or Branch & Cut(B)? (Enter B/C, Default=D) ");// allows the user to pick between the 2 different algorithms
             if (bruteOrNo == 'D') {// if user wants brute force
-                depthFirst();// call to depth first algorithm
+                int current = startNode;
+                depthFirst(current);// call to depth first algorithm
             } else {// if user wants branch and cut
+                int current = startNode;
                 branchCut();// call to branch and cut
             }// end B and B&C if,else
             String quitMe = input.getString("", "Exit? (Y/N)");// asks the user if they want to exit the program
@@ -89,29 +90,52 @@ public class Amison1 {
 //               greatestScore
 //               
 
-    public static void depthFirst() {
-        // use a while loop to iterate through everything
-        double[] currentPath = new double[matrix.length + 3];
-        int j = 0;// treasure index, and to node
-        int i = 0;// from node
+    public static void depthFirst(int current) {       
+        LList currentPath = new LList();
+        currentPath.add(startNode);
+        int currentNode=startNode;
+        
+        
         double totalYeild = 0;
         double totalDistance = 0;
-        totalYeild += treasureYeild[j];
-        totalDistance += matrix[i][j];
+        totalYeild += treasureYeild[0];// CHANGE THE INDEXES
+        totalDistance += matrix[0][0];// CHANGE THE INDEXES
         double score = (totalYeild * tresWeight) - (totalDistance * arcWeight);//teasure*teasureWeight-distance*distanceWeight      
         // need a for loop to add the visited nodes to the array, add 1 to each of them so that the algorithm
-        // printer will work properly
-        currentPath[currentPath.length - 1] = score;
-        currentPath[currentPath.length - 2] = totalYeild;
-        currentPath[currentPath.length - 3] = totalDistance;
-        allPaths.add(currentPath);
-        if (score > greatestScore) {
-            greatestPath.clear();
-            greatestPath.add(currentPath);
-        } else if (score == greatestScore) {
-            greatestPath.add(currentPath);
-        }
+        // printer will work properly(if using an array)
+        
+        if (score > greatestScore) {// if new best score
+            greatestPath.clear();// clear the greatest path
+            for (int k = 1; k <= currentPath.getLength(); k++) {// loop the length of the current path
+                greatestPath.add(currentPath.getEntry(k));// add the current path to the other                                                                                  // current paths already in the list
+            }// end of if new best score for
+        } else if (score == greatestScore) {// if same score
+            greatestPath.add(-1);// used to seperate the different paths, list indexes will never be negative
+            for (int k = 1; k <= currentPath.getLength(); k++) {// loop the length of the current path
+                greatestPath.add(greatestPath.getLength() + k, currentPath.getEntry(k));// add the current path to the other                                                                                  // current paths already in the list
+            }// end of if same score for
+        }// end of same score if
     }
+//**************************************************************************************************************
+// Method:       findNext
+// Description:  finds the next neighbor in the passed row after the previous column
+// Parameters:   none
+// Returns:      none
+// Calls:        
+// Globals: 
+    public static int findNext(int row, int previous){
+        int next=0;// initial to find next index
+        if(previous+1==matrix[0].length){// if previous node is the last
+            return 0;// return 0
+        }// end if the previous node is the last
+        for (int i = previous+1; i < matrix[0].length; i++) {// for loop to find the next neighbor
+            if(matrix[row][i]!=0){// if next neighbor
+                next=i;// assign the next index to next
+                break;// break the for loop
+            }// end if next neighbor
+        }// end find next for loop
+        return next;// return the new index
+    }// end findNext
 //**************************************************************************************************************
 // Method:       branchCut
 // Description:  branch and cut algorithm
@@ -134,7 +158,7 @@ public class Amison1 {
     public static void printerBest() {
         System.out.println("Score: " + greatestScore);
         //ADD FOR MORE THAN ONE PATH, NEED FOR LOOP
-        double[] caster = (double[]) allPaths.getEntry(1);
+        double[] caster = (double[]) greatestPath.getEntry(1);
         System.out.println("Path: ");
         for (int i = 0; i < caster.length - 3; i++) {
             if (caster[i] != 0) {
