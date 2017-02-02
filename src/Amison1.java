@@ -61,49 +61,106 @@ public class Amison1 {
     public static void main(String[] args) {
         while (true) {
             getAndParse(); // call to get and parse
-            char bruteOrNo = input.getCharacter(true, 'B', "D,B", 1, "Depth First(D) or Branch & Cut(B)? (Enter B/C, Default=D) ");// allows the user to pick between the 2 different algorithms
-            if (bruteOrNo == 'D') {// if user wants brute force
-                int current = startNode;
-                depthFirst(current);// call to depth first algorithm
-            } else {// if user wants branch and cut
-                int current = startNode;
-                branchCut();// call to branch and cut
-            }// end B and B&C if,else
+            int current_state = startNode;
+            System.out.println(depthFirstR(current_state) + " FINISHED");// call to depth first algorithm           
             String quitMe = input.getString("", "Exit? (Y/N)");// asks the user if they want to exit the program
             if (quitMe.equals("Y") || quitMe.equals("y")) {// if user wants to exit
                 break;// terminates the program
             }// end if user wants to exit
         }// end overall while
     }// end main
-//**************************************************************************************************************
-// Method:       depthFirst
-// Description:  depth first search algotithm
+    //**************************************************************************************************************
+// Method:       depthFirstR
+// Description:  depth first search algotithm WITH RECURSION
 // Parameters:   none
 // Returns:      none
 // Calls:        
-// Globals:      treasureYeild[]
-//               matrix[][]
-//               tresWeight
-//               arcWeight
-//               allPaths
-//               greatestPath
-//               greatestScore
-//               
+// Globals:     
+    public static LList closed = new LList();
+    public static LList visited = new LList();
+    public static LList children = new LList();
+    public static LList currentPath = new LList();
 
-    public static void depthFirst(int current) {       
-        LList currentPath = new LList();
-        currentPath.add(startNode);
-        int currentNode=startNode;
-        
-        
-        double totalYeild = 0;
-        double totalDistance = 0;
-        totalYeild += treasureYeild[0];// CHANGE THE INDEXES
-        totalDistance += matrix[0][0];// CHANGE THE INDEXES
-        double score = (totalYeild * tresWeight) - (totalDistance * arcWeight);//teasure*teasureWeight-distance*distanceWeight      
+    public static boolean depthFirstR(int current_state) {
+        if (current_state == endNode) {
+            currentPath.add(current_state);
+            System.out.println("FOUND IT: " + current_state);
+            return true;
+        } else {
+            closed.add(current_state);
+            input.getString("", "Acknowledge");
+            for (int i = matrix.length - 1; i >= 0; i--) {
+                if (matrix[current_state][i] != 0 && !closed.contains(i)) {
+                    children.add(i);
+                }
+            }
+            while (!children.isEmpty()) {               
+                int child = (int) children.getEntry(children.getLength());
+                children.remove(children.getLength());             
+                if (!closed.contains(child)) {
+                    if (depthFirstR(child) == true) {
+                        return true;     
+                    }
+                }
+            }
+        }
+        System.out.println("bottom");
+        return false;
+    }
+//**************************************************************************************************************
+// Method:       depthFirstNoR
+// Description:  depth first search algotithm, NO RECURSION
+// Parameters:   none
+// Returns:      none
+// Calls:        
+// Globals:     
+
+    public static void depthFirstNoR() {
+        System.out.println("");
+        LList open = new LList();
+        LList closed = new LList();
+        open.add(startNode);
+        while (open.isEmpty() == false) {
+            input.getString("", "Acknowledge");
+            int x = (int) open.getEntry(1);
+            System.out.println("Xis: " + x);
+            open.remove(1);
+            if (x == endNode) {
+                System.out.println("FOUND IT: " + x);
+            } else {
+                closed.add(x);
+                for (int i = matrix.length - 1; i >= 0; i--) {
+                    if ((matrix[x][i] != 0)) {
+                        System.out.println("Child of X is: " + i);
+                        if ((!open.contains(i)) && (!closed.contains(i))) {
+                            System.out.println("adding: " + i);
+                            open.add(1, (int) i);
+                        }
+                    }
+                }
+                if (closed.getLength() != 0) {
+                    System.out.println("Closed: ");
+                    for (int i = 1; i <= closed.getLength(); i++) {
+                        System.out.print(closed.getEntry(i) + ", ");
+                    }
+                }
+                System.out.println("");
+                if (open.getLength() != 0) {
+                    System.out.println("Open: ");
+                    for (int i = 1; i <= open.getLength(); i++) {
+                        System.out.print((int) open.getEntry(i) + ", ");
+                    }
+                    System.out.println("");
+                }
+            }
+        }
+        System.out.println("No States Left");
+    }
+
+    public static void scorer(LList currentPath, double totalYeild, double totalDistance) {
         // need a for loop to add the visited nodes to the array, add 1 to each of them so that the algorithm
         // printer will work properly(if using an array)
-        
+        double score = (totalYeild * tresWeight) - (totalDistance * arcWeight);//teasure*teasureWeight-distance*distanceWeight
         if (score > greatestScore) {// if new best score
             greatestPath.clear();// clear the greatest path
             for (int k = 1; k <= currentPath.getLength(); k++) {// loop the length of the current path
@@ -116,62 +173,7 @@ public class Amison1 {
             }// end of if same score for
         }// end of same score if
     }
-//**************************************************************************************************************
-// Method:       findNext
-// Description:  finds the next neighbor in the passed row after the previous column
-// Parameters:   none
-// Returns:      none
-// Calls:        
-// Globals: 
-    public static int findNext(int row, int previous){
-        int next=0;// initial to find next index
-        if(previous+1==matrix[0].length){// if previous node is the last
-            return 0;// return 0
-        }// end if the previous node is the last
-        for (int i = previous+1; i < matrix[0].length; i++) {// for loop to find the next neighbor
-            if(matrix[row][i]!=0){// if next neighbor
-                next=i;// assign the next index to next
-                break;// break the for loop
-            }// end if next neighbor
-        }// end find next for loop
-        return next;// return the new index
-    }// end findNext
-//**************************************************************************************************************
-// Method:       branchCut
-// Description:  branch and cut algorithm
-// Parameters:   none
-// Returns:      none
-// Calls:        
-// Globals: 
 
-    public static void branchCut() {
-
-    }
-    //**************************************************************************************************************
-// Method:       printer
-// Description:  printing the total lists and such
-// Parameters:   none
-// Returns:      none
-// Calls:        
-// Globals: 
-
-    public static void printerBest() {
-        System.out.println("Score: " + greatestScore);
-        //ADD FOR MORE THAN ONE PATH, NEED FOR LOOP
-        double[] caster = (double[]) greatestPath.getEntry(1);
-        System.out.println("Path: ");
-        for (int i = 0; i < caster.length - 3; i++) {
-            if (caster[i] != 0) {
-                if (i != caster.length - 4) {
-                    System.out.print(caster[i] + "-");
-                } else {
-                    System.out.print(caster[i]);
-                }
-            }
-            System.out.println("Total Treasure: " + caster[caster.length - 2]);
-            System.out.println("Total Distance: " + caster[caster.length - 3]);
-        }
-    }
 //**************************************************************************************************************
 // Method:       getAndParse
 // Description:  gets the text file from the user and breaks it up into the different data types and data
@@ -192,7 +194,6 @@ public class Amison1 {
 //               tresWeight
 //               arcWeight
 //               treasureYeild
-
     public static void getAndParse() {
         boolean breaker = false;// used to validate the file
         while (breaker == false) {// while the file is not valid
@@ -224,16 +225,16 @@ public class Amison1 {
             treasureYeild[i] = yeild;// assign the current index in treasureYeild to the current yeild
         }// end treasureYeild oading for
         //***********************DELETE**********************
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix.length; j++) {
-                System.out.print(matrix[i][j] + ", ");
-            }
-            System.out.println("");
-        }
-        System.out.println("HERE");
-        for (int i = 0; i < treasureYeild.length; i++) {
-            System.out.print(treasureYeild[i] + ", ");
-        }
+//        for (int i = 0; i < matrix.length; i++) {
+//            for (int j = 0; j < matrix.length; j++) {
+//                System.out.print(matrix[i][j] + ", ");
+//            }
+//            System.out.println("");
+//        }
+//        System.out.println("HERE");
+//        for (int i = 0; i < treasureYeild.length; i++) {
+//            System.out.print(treasureYeild[i] + ", ");
+//        }
         //***********************DELETE**********************
     }// end get and parse
 }// end Amison1
