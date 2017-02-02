@@ -29,9 +29,9 @@ import java.util.StringTokenizer;// imported to utilize the string tokenizer cla
 //               double greatestScore
 //               double bestTreasure
 //               double bestPathLength
-
 //REMOVE THESE COMMENTS! (used to remember my testing file names)
 // orig.txt is the original params Dr.D demoed
+
 public class Amison1 {
 
     public static KeyboardInputClass input = new KeyboardInputClass();// access to KeyBoardInputClass()
@@ -60,9 +60,11 @@ public class Amison1 {
 // Globals:      input
     public static void main(String[] args) {
         while (true) {
-            getAndParse(); // call to get and parse
-            int current_state = startNode;
-            System.out.println(depthFirstR(current_state) + " FINISHED");// call to depth first algorithm           
+            getAndParse(); // call to get and parse            
+            System.out.println("Start is: " + startNode);
+            LList currentPath=new LList();
+            LList closed=new LList();
+            System.out.println(depthFirstRecurse(startNode,currentPath,closed) + " FINISHED");// call to depth first algorithm           
             String quitMe = input.getString("", "Exit? (Y/N)");// asks the user if they want to exit the program
             if (quitMe.equals("Y") || quitMe.equals("y")) {// if user wants to exit
                 break;// terminates the program
@@ -76,88 +78,70 @@ public class Amison1 {
 // Returns:      none
 // Calls:        
 // Globals:     
-    public static LList closed = new LList();
-    public static LList visited = new LList();
-    public static LList children = new LList();
-    public static LList currentPath = new LList();
+    //public static LList visited = new LList();
+    //public static LList children = new LList();
 
-    public static boolean depthFirstR(int current_state) {
-        if (current_state == endNode) {
-            currentPath.add(current_state);
-            System.out.println("FOUND IT: " + current_state);
-            return true;
-        } else {
-            closed.add(current_state);
-            input.getString("", "Acknowledge");
-            for (int i = matrix.length - 1; i >= 0; i--) {
-                if (matrix[current_state][i] != 0 && !closed.contains(i)) {
-                    children.add(i);
-                }
-            }
-            while (!children.isEmpty()) {               
-                int child = (int) children.getEntry(children.getLength());
-                children.remove(children.getLength());             
-                if (!closed.contains(child)) {
-                    if (depthFirstR(child) == true) {
-                        return true;     
-                    }
-                }
-            }
+    public static boolean depthFirstRecurse(int current_state, LList currentPath, LList closed) {
+        closed.add(current_state);
+        currentPath.add(current_state);
+        for (int i = 1; i <=currentPath.getLength(); i++) {
+            System.out.print(currentPath.getEntry(i)+", ");            
         }
-        System.out.println("bottom");
-        return false;
-    }
-//**************************************************************************************************************
-// Method:       depthFirstNoR
-// Description:  depth first search algotithm, NO RECURSION
-// Parameters:   none
+        System.out.println("");
+        for (int i = 1; i <=closed.getLength(); i++) {
+            System.out.print(closed.getEntry(i)+", ");            
+        }
+        System.out.println("");
+        System.out.println("Current State is: "+current_state);
+        LList currentPathCopy = copier(currentPath);
+        LList closedCopy = copier(closed);
+        if (current_state == endNode) {// base case for recursion, if we find a path to the end node
+            System.out.println("FOUND IT: " + current_state);// print that we found the end node
+            return true;// return that we found a path
+        } else {// if the current state is not the end node            
+            input.getString("", "Acknowledge");// acknowledge what the current state is
+            for (int i = 0; i <matrix.length; i++) {// for to generate children, but add the backwards
+                if (matrix[current_state][i] != 0 && !closedCopy.contains(i)) {//if there is an arc between and it not in closed
+                    current_state = i;
+                    depthFirstRecurse(current_state, currentPathCopy, closedCopy);
+//                    children.add(i);// add child to the children backwards
+                }// end if
+            }// end for
+        }// end else
+        System.out.println("bottom");// show we made it to the end and returned false
+        return false;// return false
+    }// end depthFirstR
+    //**************************************************************************************************************
+// Method:      scorer
+// Description:  scores the current path and determines if it's best or equal
+// Parameters:   LList currentPath
 // Returns:      none
 // Calls:        
-// Globals:     
+// Globals: 
 
-    public static void depthFirstNoR() {
-        System.out.println("");
-        LList open = new LList();
-        LList closed = new LList();
-        open.add(startNode);
-        while (open.isEmpty() == false) {
-            input.getString("", "Acknowledge");
-            int x = (int) open.getEntry(1);
-            System.out.println("Xis: " + x);
-            open.remove(1);
-            if (x == endNode) {
-                System.out.println("FOUND IT: " + x);
-            } else {
-                closed.add(x);
-                for (int i = matrix.length - 1; i >= 0; i--) {
-                    if ((matrix[x][i] != 0)) {
-                        System.out.println("Child of X is: " + i);
-                        if ((!open.contains(i)) && (!closed.contains(i))) {
-                            System.out.println("adding: " + i);
-                            open.add(1, (int) i);
-                        }
-                    }
-                }
-                if (closed.getLength() != 0) {
-                    System.out.println("Closed: ");
-                    for (int i = 1; i <= closed.getLength(); i++) {
-                        System.out.print(closed.getEntry(i) + ", ");
-                    }
-                }
-                System.out.println("");
-                if (open.getLength() != 0) {
-                    System.out.println("Open: ");
-                    for (int i = 1; i <= open.getLength(); i++) {
-                        System.out.print((int) open.getEntry(i) + ", ");
-                    }
-                    System.out.println("");
-                }
-            }
+    public static LList copier(LList currentList) {
+        LList copied = new LList();
+        for (int i = 1; i <= currentList.getLength(); i++) {
+            copied.add(currentList.getEntry(i));
         }
-        System.out.println("No States Left");
+        return copied;
     }
+    //**************************************************************************************************************
+// Method:      scorer
+// Description:  scores the current path and determines if it's best or equal
+// Parameters:   LList currentPath
+// Returns:      none
+// Calls:        
+// Globals: 
 
-    public static void scorer(LList currentPath, double totalYeild, double totalDistance) {
+    public static void scorer(LList currentPath) {
+        currentPath.add(startNode);
+        int currentNode = startNode;
+        double totalYeild = 0;
+        double totalDistance = 0;
+        totalYeild += treasureYeild[0];// CHANGE THE INDEXES
+        totalDistance += matrix[0][0];// CHANGE THE INDEXES
+        //double score = (totalYeild * tresWeight) - (totalDistance * arcWeight);//teasure*teasureWeight-distance*distanceWeight      
         // need a for loop to add the visited nodes to the array, add 1 to each of them so that the algorithm
         // printer will work properly(if using an array)
         double score = (totalYeild * tresWeight) - (totalDistance * arcWeight);//teasure*teasureWeight-distance*distanceWeight
