@@ -1,4 +1,3 @@
-//test twice
 
 import java.util.StringTokenizer;// imported to utilize the string tokenizer class
 // Program:          Amison1.java
@@ -61,10 +60,10 @@ public class Amison1 {
     public static void main(String[] args) {
         while (true) {
             getAndParse(); // call to get and parse            
-            System.out.println("Start is: " + startNode);
-            LList currentPath=new LList();
-            LList closed=new LList();
-            System.out.println(depthFirstRecurse(startNode,currentPath,closed) + " FINISHED");// call to depth first algorithm           
+//            System.out.println("Start is: " + startNode);
+            LList currentPath = new LList();
+            currentPath.add(startNode);
+            System.out.println(depthFirstRecurse(startNode, currentPath) + " FINISHED");// call to depth first algorithm           
             String quitMe = input.getString("", "Exit? (Y/N)");// asks the user if they want to exit the program
             if (quitMe.equals("Y") || quitMe.equals("y")) {// if user wants to exit
                 break;// terminates the program
@@ -81,34 +80,65 @@ public class Amison1 {
     //public static LList visited = new LList();
     //public static LList children = new LList();
 
-    public static boolean depthFirstRecurse(int current_state, LList currentPath, LList closed) {
-        closed.add(current_state);
-        currentPath.add(current_state);
-        for (int i = 1; i <=currentPath.getLength(); i++) {
-            System.out.print(currentPath.getEntry(i)+", ");            
+    public static boolean depthFirstRecurse(int current_state, LList currentPath) {
+        System.out.print("Current State is: " + current_state + " Top: ");
+        for (int i = 1; i <= currentPath.getLength(); i++) {
+            System.out.print(currentPath.getEntry(i) + ", ");
         }
         System.out.println("");
-        for (int i = 1; i <=closed.getLength(); i++) {
-            System.out.print(closed.getEntry(i)+", ");            
-        }
-        System.out.println("");
-        System.out.println("Current State is: "+current_state);
         LList currentPathCopy = copier(currentPath);
-        LList closedCopy = copier(closed);
         if (current_state == endNode) {// base case for recursion, if we find a path to the end node
-            System.out.println("FOUND IT: " + current_state);// print that we found the end node
-            return true;// return that we found a path
-        } else {// if the current state is not the end node            
-            input.getString("", "Acknowledge");// acknowledge what the current state is
-            for (int i = 0; i <matrix.length; i++) {// for to generate children, but add the backwards
-                if (matrix[current_state][i] != 0 && !closedCopy.contains(i)) {//if there is an arc between and it not in closed
-                    current_state = i;
-                    depthFirstRecurse(current_state, currentPathCopy, closedCopy);
-//                    children.add(i);// add child to the children backwards
-                }// end if
-            }// end for
-        }// end else
-        System.out.println("bottom");// show we made it to the end and returned false
+//            System.out.println("FOUND IT: " + current_state);// print that we found the end node
+             return true;// return that we found a path
+        } else { // if the current state is not the end node                                      
+            for (int i = 0; i < matrix.length; i++) {// for to generate children, but add the backwards               
+                if (matrix[current_state][i] != 0 && !currentPathCopy.contains(i)) {//if there is an arc between and it not in closed
+                    if (current_state != endNode) {
+                        int new_current_state = i;
+                        currentPathCopy.add(new_current_state);
+//                        System.out.println("new current state: " + new_current_state);// show the new current state                                                
+                        //print new state
+                        //--------------
+                        System.out.print("Middle New Current State: " + new_current_state + " Path: ");// shows that this is the list in the middle
+                        for (int u = 1; u <= currentPathCopy.getLength(); u++) {// prints out the list in the middle
+                            System.out.print(currentPathCopy.getEntry(u) + ", ");
+                        }
+                        System.out.println("");
+//                        System.out.print("Middle Current Path Copy: ");// shows that this is the list in the middle
+//                        for (int u = 1; u <= currentPathCopy.getLength(); u++) {// prints out the list in the middle
+//                            System.out.print(currentPathCopy.getEntry(u) + ", ");
+//                        }
+//                        System.out.println("");
+//                        System.out.println(" Current State Before Recurse: " + current_state);
+//                        System.out.println("New Current State Before Recurse: " + new_current_state);
+                        //---------------
+//                        input.getString("", "Acknowledge, recursing");// acknowledge what the current state is     
+                        depthFirstRecurse(new_current_state, currentPathCopy);// recursion call
+                        System.out.print("**************** Bottom Current State is: " + current_state + " Top: ");
+                        for (int t = 1; t <= currentPath.getLength(); t++) {
+                            System.out.print(currentPath.getEntry(t) + ", ");
+                        }
+                        System.out.println("");
+//---------------
+//                        System.out.println("Recursed List Current Path");
+//                        for (int q = 1; q <= currentPath.getLength(); q++) {
+//                            System.out.print(currentPath.getEntry(q) + ", ");
+//                        }
+//                        System.out.println("");
+//                        System.out.println("Recursed List Current Path Copy");
+//                        for (int q = 1; q <= currentPathCopy.getLength(); q++) {
+//                            System.out.print(currentPathCopy.getEntry(q) + ", ");
+//                        }
+//                        System.out.println("");
+//                        System.out.println(" Current State After Recurse: "+current_state);
+//                        System.out.println("New Current State After Recurse: "+new_current_state);
+                        //-----------------
+//                        input.getString("", "Acknowledge Recursed List:");// acknowledge what the current state is                                              
+                    }// end for
+                }
+            }// end else
+        }
+        System.out.println("");
         return false;// return false
     }// end depthFirstR
     //**************************************************************************************************************
