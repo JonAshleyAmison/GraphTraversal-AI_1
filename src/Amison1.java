@@ -7,8 +7,9 @@ import java.util.StringTokenizer;// imported to utilize the string tokenizer cla
 //                   Using this, the program will find the path that yields the most treasure while traveling the 
 //                   shortest path, based on the weights, and computing a fitness from the starting node to the ending node.
 // Author:           Reagan JonAshley Amison
-// Revised:          1/24/17
-// Notes:            INSERT NOTES HERE
+// Revised:          2/6/17
+// Notes:            Does not contain the bonus. I had some other homework I had to do and it took all of my time.
+//                   I apologize for that.
 // ************************************************************************************************************ 
 // ************************************************************************************************************
 // Class:        Amison1
@@ -28,11 +29,7 @@ import java.util.StringTokenizer;// imported to utilize the string tokenizer cla
 //               double greatestScore
 //               double bestTreasure
 //               double bestPathLength
-//REMOVE THESE COMMENTS! (used to remember my testing file names)
-// orig.txt is the original params Dr.D demoed
-
 public class Amison1 {
-
     public static KeyboardInputClass input = new KeyboardInputClass();// access to KeyBoardInputClass()
     public static TextFileClass textFile = new TextFileClass();// access to textFile()
     public static LList greatestPath = new LList();// list to use the greatest path
@@ -45,147 +42,155 @@ public class Amison1 {
     public static double greatestScore;// current greatestScore
     public static double bestTreasure;// greatest treasure yeild
     public static double bestPathLength;// best path length
-
 //**************************************************************************************************************
 // Method:       main
 // Description:  Handles all the logic and calling of the program  
 // Parameters:   none
 // Returns:      none
 // Calls:        getAndParse()
-//               getCharacter()
-//               brute()
-//               branchCut()
-//               getString()
+//               KeyboardInputClass.getCharacter()
+//               KeyboardInputClass.getString()
+//               depthFirstRecurse()
+//               LList.add()
+//               LList()
+//               printerBest()
+//               LList.clear()
+//               String.equals()
 // Globals:      input
     public static void main(String[] args) {
         while (true) {
-            getAndParse(); // call to get and parse            
-//            System.out.println("Start is: " + startNode);
-            LList currentPath = new LList();
-            currentPath.add(startNode);
-            System.out.println(depthFirstRecurse(startNode, currentPath) + " FINISHED");// call to depth first algorithm           
-            String quitMe = input.getString("", "Exit? (Y/N)");// asks the user if they want to exit the program
+            getAndParse(); // call to get and parse   
+            LList currentPath = new LList();// initialize a new current path
+            currentPath.add(startNode);// add the start node to the current path
+            depthFirstRecurse(startNode, currentPath);// call to depth first algorithm 
+            printerBest();// print the best path
+            String quitMe = input.getString("", "Exit? (Y/N Default=N)");// asks the user if they want to exit the program
             if (quitMe.equals("Y") || quitMe.equals("y")) {// if user wants to exit
                 break;// terminates the program
             }// end if user wants to exit
+            greatestPath.clear();// clear greatest path for next run            
         }// end overall while
     }// end main
     //**************************************************************************************************************
 // Method:       depthFirstR
-// Description:  depth first search algotithm WITH RECURSION
-// Parameters:   none
+// Description:  depth first search algotithm with recursion. If the current state is an end node, score it
+// Parameters:   int currentState
+//               LList currentPath
 // Returns:      none
-// Calls:        
-// Globals:     
-    //public static LList visited = new LList();
-    //public static LList children = new LList();
-
-    public static boolean depthFirstRecurse(int current_state, LList currentPath) {
-        System.out.print("Current State is: " + current_state + " Top: ");
-        for (int i = 1; i <= currentPath.getLength(); i++) {
-            System.out.print(currentPath.getEntry(i) + ", ");
-        }
-        System.out.println("");
-        if (current_state == endNode) {// base case for recursion, if we find a path to the end node
-            System.out.println("FOUND IT: " + current_state);// print that we found the end node
+// Calls:        scorer()
+//               LList.contains()
+//               copier()
+//               LList.add()
+//               depthFirstRecurse
+// Globals:      endNode
+//               matrix
+    public static boolean depthFirstRecurse(int currentState, LList currentPath) {
+        if (currentState == endNode) {// base case for recursion, if we find a path to the end node
+            scorer(currentPath);// call to the scorer method to score the current path
             return true;// return that we found a path
         } else { // if the current state is not the end node                                      
             for (int i = 0; i < matrix.length; i++) {// for to generate children, but add the backwards               
-                if (matrix[current_state][i] != 0 && !currentPath.contains(i)) {//if there is an arc between and it not in closed
+                if (matrix[currentState][i] != 0 && !currentPath.contains(i)) {//if there is an arc between and it not in closed
                     LList currentPathCopy = copier(currentPath);
-                    int new_current_state = i;
-                    currentPathCopy.add(new_current_state);
-//                        System.out.println("new current state: " + new_current_state);// show the new current state                                                
-                    //print new state
-                    //--------------
-                    System.out.print("Middle New Current State: " + new_current_state + " Path: ");// shows that this is the list in the middle
-                    for (int u = 1; u <= currentPathCopy.getLength(); u++) {// prints out the list in the middle
-                        System.out.print(currentPathCopy.getEntry(u) + ", ");
-                    }
-                    System.out.println("");
-//                        System.out.print("Middle Current Path Copy: ");// shows that this is the list in the middle
-//                        for (int u = 1; u <= currentPathCopy.getLength(); u++) {// prints out the list in the middle
-//                            System.out.print(currentPathCopy.getEntry(u) + ", ");
-//                        }
-//                        System.out.println("");
-//                        System.out.println(" Current State Before Recurse: " + current_state);
-//                        System.out.println("New Current State Before Recurse: " + new_current_state);
-                    //---------------
-//                        input.getString("", "Acknowledge, recursing");// acknowledge what the current state is     
-                    depthFirstRecurse(new_current_state, currentPathCopy);// recursion call
-                    System.out.print("**************** Bottom Current State is: " + current_state + " Top: ");
-                    for (int t = 1; t <= currentPath.getLength(); t++) {
-                        System.out.print(currentPath.getEntry(t) + ", ");
-                    }
-                    System.out.println("");
-//---------------
-//                        System.out.println("Recursed List Current Path");
-//                        for (int q = 1; q <= currentPath.getLength(); q++) {
-//                            System.out.print(currentPath.getEntry(q) + ", ");
-//                        }
-//                        System.out.println("");
-//                        System.out.println("Recursed List Current Path Copy");
-//                        for (int q = 1; q <= currentPathCopy.getLength(); q++) {
-//                            System.out.print(currentPathCopy.getEntry(q) + ", ");
-//                        }
-//                        System.out.println("");
-//                        System.out.println(" Current State After Recurse: "+current_state);
-//                        System.out.println("New Current State After Recurse: "+new_current_state);
-                    //-----------------
-//                        input.getString("", "Acknowledge Recursed List:");// acknowledge what the current state is                                              
+                    int newCurrentState = i;// i is the new current state
+                    currentPathCopy.add(newCurrentState);//add the new current state to the list
+                    depthFirstRecurse(newCurrentState, currentPathCopy);// recursion call pass the new current state, and current path copy
                 }// end for
             }// end else
-        }
-        System.out.println("");
+        }// end else current state isnt an end node
         return false;// return false
     }// end depthFirstR
     //**************************************************************************************************************
-// Method:      scorer
-// Description:  scores the current path and determines if it's best or equal
-// Parameters:   LList currentPath
-// Returns:      none
-// Calls:        
-// Globals: 
-
+// Method:      copier
+// Description: makes a deep copy of a passed Linked List
+// Parameters:  LList currentPath
+// Returns:     LList copied- the copied list
+// Calls:       LList.getLength()
+//              LList.getEntry() 
+// Globals:     none
     public static LList copier(LList currentList) {
-        LList copied = new LList();
-        for (int i = 1; i <= currentList.getLength(); i++) {
-            copied.add(currentList.getEntry(i));
-        }
-        return copied;
-    }
+        LList copied = new LList();// make a new list to be copied to
+        for (int i = 1; i <= currentList.getLength(); i++) {// loader for
+            copied.add(currentList.getEntry(i));// get the entry and add that entry to the copied list
+        }// loader for
+        return copied;// return the copied list
+    }// end copied
     //**************************************************************************************************************
 // Method:      scorer
-// Description:  scores the current path and determines if it's best or equal
-// Parameters:   LList currentPath
-// Returns:      none
-// Calls:        
-// Globals: 
-
+// Description: scores the current path and determines if it's best or equal, puts the path, treasure, and distance
+//              into a double array to be added to the greatestPath list
+// Parameters:  LList currentPath
+// Returns:     none
+// Calls:       LList.getEntry()
+//              LList.getLength()
+//              LList.clear()
+//              LList.add()
+// Globals:     treasureYeild
+//              matrix
+//              tresWeight
+//              arcWeight
+//              greatestPath
+//              greatestScore
     public static void scorer(LList currentPath) {
-        currentPath.add(startNode);
-        int currentNode = startNode;
-        double totalYeild = 0;
-        double totalDistance = 0;
-        totalYeild += treasureYeild[0];// CHANGE THE INDEXES
-        totalDistance += matrix[0][0];// CHANGE THE INDEXES
-        //double score = (totalYeild * tresWeight) - (totalDistance * arcWeight);//teasure*teasureWeight-distance*distanceWeight      
-        // need a for loop to add the visited nodes to the array, add 1 to each of them so that the algorithm
-        // printer will work properly(if using an array)
-        double score = (totalYeild * tresWeight) - (totalDistance * arcWeight);//teasure*teasureWeight-distance*distanceWeight
+        double[] allAttributes = new double[currentPath.getLength() + 2];// make a new [] to hold all the attributes of the path
+        double totalDistance = 0;// initialize totalDistance
+        int current = (int) currentPath.getEntry(1);// get the first node in the path
+        double totalYeild = treasureYeild[current];// get the first amount of treasure
+        allAttributes[0] = current;// add the first node to the path
+        for (int i = 2; i <= currentPath.getLength(); i++) {// distance and treasure computing for
+            int next = (int) currentPath.getEntry(i);// get the next node
+            totalDistance += matrix[current][next];// add the new arc length the current distance
+            totalYeild += treasureYeild[next];// add the new treasure to the current treasure
+            current = next;// make the current next the new current node
+            allAttributes[i - 1] = next;// add the next node to the allAttributes array
+        }//end distance and treasure computing for
+        allAttributes[allAttributes.length - 2] = totalDistance;// add the distance to the next to last index in allAttributes
+        allAttributes[allAttributes.length - 1] = totalYeild;// add the treasure to the last index in allAttributes
+        double score = totalYeild * tresWeight - totalDistance * arcWeight;//teasure*teasureWeight-distance*distanceWeight              
         if (score > greatestScore) {// if new best score
             greatestPath.clear();// clear the greatest path
-            for (int k = 1; k <= currentPath.getLength(); k++) {// loop the length of the current path
-                greatestPath.add(currentPath.getEntry(k));// add the current path to the other                                                                                  // current paths already in the list
-            }// end of if new best score for
+            greatestPath.add(allAttributes);// add the new greatest Path
+            greatestScore = score;// assign the new greatest score to greatestScore
         } else if (score == greatestScore) {// if same score
-            greatestPath.add(-1);// used to seperate the different paths, list indexes will never be negative
-            for (int k = 1; k <= currentPath.getLength(); k++) {// loop the length of the current path
-                greatestPath.add(greatestPath.getLength() + k, currentPath.getEntry(k));// add the current path to the other                                                                                  // current paths already in the list
-            }// end of if same score for
+            greatestPath.add(allAttributes);// used to seperate the different paths, list indexes will never be negative            
         }// end of same score if
-    }
-
+    }//end scorer
+    //**************************************************************************************************************
+// Method:      printerBest
+// Description: prints the best path(s) in the greatestPath List
+// Parameters:  none
+// Returns:     none
+// Calls:       LList.getLength()
+//              LList.getEntry() 
+// Globals:     greatestScore
+//              greatestPath
+    public static void printerBest() {
+        System.out.println("***************************************************************");//aesthetic
+        System.out.println("Greatest Score: " + greatestScore);// show the greatest score
+        System.out.println("Number of Optimal Paths: " + greatestPath.getLength());// show the number of optimal paths
+        if (greatestPath.getLength() == 0) {// if there are no paths
+            System.out.println("No Paths Were Found.");// tell the user there are no paths
+            return;// exit printer best
+        }// end if there are no paths
+        for (int i = 1; i <= greatestPath.getLength(); i++) {// printing list for
+            double[] casted = (double[]) greatestPath.getEntry(i);// cast the entries in the list to a double[]
+            if (greatestPath.getLength() == 1) {// if there is only one path
+                System.out.print("Path: ");// singular path
+            } else if (greatestPath.getLength() > 1) {// if there is more than one path
+                System.out.print("Paths:");// plural path
+            }// end number of paths if
+            for (int j = 0; j < casted.length - 2; j++) {// actual path printing for
+                if (j == casted.length - 3) {// if this is the last node in the path
+                    System.out.print((int) casted[j] + " , Distance: ");// dont print a -, next is distance
+                } else {// if this isnt the last node in the path
+                    System.out.print((int) casted[j] + "-");// print a dash between nodes
+                }// end node in path if
+            }// end actual printing for
+            System.out.print(casted[casted.length - 2] + " , Treasure: " + casted[casted.length - 1]);//show distance and treasure
+            System.out.println("");// line down for next path
+        }// end printing list for
+        System.out.println("***************************************************************");//aesthetic
+    }// end printerBest
 //**************************************************************************************************************
 // Method:       getAndParse
 // Description:  gets the text file from the user and breaks it up into the different data types and data
@@ -206,6 +211,7 @@ public class Amison1 {
 //               tresWeight
 //               arcWeight
 //               treasureYeild
+
     public static void getAndParse() {
         boolean breaker = false;// used to validate the file
         while (breaker == false) {// while the file is not valid
@@ -219,8 +225,8 @@ public class Amison1 {
         matrix = new double[numNodes][numNodes];// make the new matrix
         startNode = Integer.parseInt(textFile.text[1]);// get the start node from the second line
         endNode = Integer.parseInt(textFile.text[2]);// get the end node from the third line
-        tresWeight = Double.parseDouble(textFile.text[3]);// get the treasureWeight from the fourth line
-        arcWeight = Double.parseDouble(textFile.text[4]);// get the arc weight from the fifth line
+        arcWeight = Double.parseDouble(textFile.text[3]);// get the treasureWeight from the fourth line
+        tresWeight = Double.parseDouble(textFile.text[4]);// get the arc weight from the fifth line
         for (int i = 0; i < numNodes; i++) {// matrix row loading for
             StringTokenizer parser = new StringTokenizer(textFile.text[i + 5]);// access to string tokenizer for the current line
             double token = Double.parseDouble(parser.nextToken(", "));// get's the next token, delimeted by commas
@@ -235,18 +241,6 @@ public class Amison1 {
         for (int i = 0; i < numNodes; i++) {// treasureYeild loading for
             double yeild = Double.parseDouble(textFile.text[i + numNodes + 5]);// make yeild the current line of the text file
             treasureYeild[i] = yeild;// assign the current index in treasureYeild to the current yeild
-        }// end treasureYeild oading for
-        //***********************DELETE**********************
-//        for (int i = 0; i < matrix.length; i++) {
-//            for (int j = 0; j < matrix.length; j++) {
-//                System.out.print(matrix[i][j] + ", ");
-//            }
-//            System.out.println("");
-//        }
-//        System.out.println("HERE");
-//        for (int i = 0; i < treasureYeild.length; i++) {
-//            System.out.print(treasureYeild[i] + ", ");
-//        }
-        //***********************DELETE**********************
+        }// end treasureYeild loading for
     }// end get and parse
 }// end Amison1
