@@ -86,24 +86,23 @@ public class Amison1 {
             System.out.print(currentPath.getEntry(i) + ", ");
         }
         System.out.println("");
-        LList currentPathCopy = copier(currentPath);
         if (current_state == endNode) {// base case for recursion, if we find a path to the end node
-//            System.out.println("FOUND IT: " + current_state);// print that we found the end node
-             return true;// return that we found a path
+            System.out.println("FOUND IT: " + current_state);// print that we found the end node
+            return true;// return that we found a path
         } else { // if the current state is not the end node                                      
             for (int i = 0; i < matrix.length; i++) {// for to generate children, but add the backwards               
-                if (matrix[current_state][i] != 0 && !currentPathCopy.contains(i)) {//if there is an arc between and it not in closed
-                    if (current_state != endNode) {
-                        int new_current_state = i;
-                        currentPathCopy.add(new_current_state);
+                if (matrix[current_state][i] != 0 && !currentPath.contains(i)) {//if there is an arc between and it not in closed
+                    LList currentPathCopy = copier(currentPath);
+                    int new_current_state = i;
+                    currentPathCopy.add(new_current_state);
 //                        System.out.println("new current state: " + new_current_state);// show the new current state                                                
-                        //print new state
-                        //--------------
-                        System.out.print("Middle New Current State: " + new_current_state + " Path: ");// shows that this is the list in the middle
-                        for (int u = 1; u <= currentPathCopy.getLength(); u++) {// prints out the list in the middle
-                            System.out.print(currentPathCopy.getEntry(u) + ", ");
-                        }
-                        System.out.println("");
+                    //print new state
+                    //--------------
+                    System.out.print("Middle New Current State: " + new_current_state + " Path: ");// shows that this is the list in the middle
+                    for (int u = 1; u <= currentPathCopy.getLength(); u++) {// prints out the list in the middle
+                        System.out.print(currentPathCopy.getEntry(u) + ", ");
+                    }
+                    System.out.println("");
 //                        System.out.print("Middle Current Path Copy: ");// shows that this is the list in the middle
 //                        for (int u = 1; u <= currentPathCopy.getLength(); u++) {// prints out the list in the middle
 //                            System.out.print(currentPathCopy.getEntry(u) + ", ");
@@ -111,14 +110,14 @@ public class Amison1 {
 //                        System.out.println("");
 //                        System.out.println(" Current State Before Recurse: " + current_state);
 //                        System.out.println("New Current State Before Recurse: " + new_current_state);
-                        //---------------
+                    //---------------
 //                        input.getString("", "Acknowledge, recursing");// acknowledge what the current state is     
-                        depthFirstRecurse(new_current_state, currentPathCopy);// recursion call
-                        System.out.print("**************** Bottom Current State is: " + current_state + " Top: ");
-                        for (int t = 1; t <= currentPath.getLength(); t++) {
-                            System.out.print(currentPath.getEntry(t) + ", ");
-                        }
-                        System.out.println("");
+                    depthFirstRecurse(new_current_state, currentPathCopy);// recursion call
+                    System.out.print("**************** Bottom Current State is: " + current_state + " Top: ");
+                    for (int t = 1; t <= currentPath.getLength(); t++) {
+                        System.out.print(currentPath.getEntry(t) + ", ");
+                    }
+                    System.out.println("");
 //---------------
 //                        System.out.println("Recursed List Current Path");
 //                        for (int q = 1; q <= currentPath.getLength(); q++) {
@@ -132,10 +131,9 @@ public class Amison1 {
 //                        System.out.println("");
 //                        System.out.println(" Current State After Recurse: "+current_state);
 //                        System.out.println("New Current State After Recurse: "+new_current_state);
-                        //-----------------
+                    //-----------------
 //                        input.getString("", "Acknowledge Recursed List:");// acknowledge what the current state is                                              
-                    }// end for
-                }
+                }// end for
             }// end else
         }
         System.out.println("");
